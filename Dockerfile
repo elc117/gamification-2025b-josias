@@ -1,17 +1,19 @@
-# 1. Imagem Base: Começa com uma imagem oficial que já tem Maven e Java 17.
-FROM maven:3-eclipse-temurin-17
-
-# 2. Diretório de Trabalho: Cria e entra na pasta /app dentro do contêiner.
+# 1. Estágio de Build
+FROM maven:3-eclipse-temurin-17 AS build
 WORKDIR /app
-
-# 3. Copia o seu projeto: Copia tudo da sua pasta (pom.xml, src, etc.) para o /app
-#    (O .dockerignore vai pular pastas desnecessárias como 'target')
 COPY . .
+# Compila o projeto e gera o JAR (pula testes para agilizar)
+RUN mvn clean package -DskipTests
 
-# 4. Pré-Build: Baixa as dependências e compila o projeto.
-#    Isso agiliza o processo de desenvolvimento.
-RUN mvn clean install
+# 2. Estágio de Execução (Imagem mais leve apenas com JRE)
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+# Copia o JAR gerado no estágio anterior
+COPY --from=build /app/target/literato-api-1.0-SNAPSHOT.jar app.jar
 
-# 5. Comando Padrão: Mantém o contêiner rodando "para sempre"
-#    para que o VS Code possa se conectar a ele.
-CMD ["sleep", "infinity"]
+# Define a porta (opcional, mas boa prática)
+ENV PORT=7070
+EXPOSE 7070
+
+# Comando para iniciar a aplicação
+CMD ["java", "-jar", "app.jar"]
