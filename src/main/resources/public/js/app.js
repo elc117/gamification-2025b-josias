@@ -2,6 +2,7 @@ import { AuthComponent } from './modules/auth.js';
 import { ReadingComponent } from './modules/reading.js?v=2';
 import { ClubsComponent } from './modules/clubs.js?v=2';
 import { ProfileModalComponent, PublicProfileComponent } from './modules/profile.js?v=2';
+import API_BASE_URL from './config.js';
 
 const { createApp } = Vue
 
@@ -12,7 +13,7 @@ const app = createApp({
         logout() { this.usuarioLogado = null; this.abaAtual = 'home'; },
         async atualizarDadosUsuario() {
             try {
-                const res = await fetch(`/api/usuarios/${this.usuarioLogado.id}`);
+                const res = await fetch(`${API_BASE_URL}/api/usuarios/${this.usuarioLogado.id}`);
                 if (res.ok) this.usuarioLogado = await res.json();
             } catch (e) { console.error(e); }
         },

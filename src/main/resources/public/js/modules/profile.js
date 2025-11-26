@@ -1,3 +1,5 @@
+import API_BASE_URL from '../config.js';
+
 export const ProfileModalComponent = {
     props: ['usuario'],
     template: `
@@ -27,7 +29,7 @@ export const ProfileModalComponent = {
         async salvarPerfil() {
             try {
                 const payload = { ...this.usuario, bio: this.formEdicao.bio, foto: this.formEdicao.foto };
-                const res = await fetch(`/api/usuarios/${this.usuario.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                const res = await fetch(`${API_BASE_URL}/api/usuarios/${this.usuario.id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
                 if (res.ok) { alert("Perfil atualizado!"); this.$emit('update'); this.$emit('close'); }
             } catch (e) { alert("Erro de conexão."); }
         }
@@ -188,7 +190,7 @@ export const PublicProfileComponent = {
             this.loading = true;
             this.perfil = null;
             try {
-                const res = await fetch(`/api/perfil/${this.usuarioId}`);
+                const res = await fetch(`${API_BASE_URL}/api/perfil/${this.usuarioId}`);
                 if (res.ok) {
                     this.perfil = await res.json();
                 } else {

@@ -1,3 +1,5 @@
+import API_BASE_URL from '../config.js';
+
 export const ClubsComponent = {
     props: ['usuario'],
     template: `
@@ -212,7 +214,7 @@ export const ClubsComponent = {
         },
         async salvarEdicaoClube() {
             try {
-                const res = await fetch(`/api/clubes/${this.clubeSelecionado.id}?usuarioId=${this.usuario.id}`, {
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${this.clubeSelecionado.id}?usuarioId=${this.usuario.id}`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(this.clubeEdicao)
@@ -237,7 +239,7 @@ export const ClubsComponent = {
         async expulsarMembro(membro) {
             if (!confirm(`Tem certeza que deseja expulsar ${membro.nome} do clube?`)) return;
             try {
-                const res = await fetch(`/api/clubes/${this.clubeSelecionado.id}/membros/${membro.id}?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${this.clubeSelecionado.id}/membros/${membro.id}?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
                 if (res.ok) {
                     alert(`${membro.nome} foi removido do clube.`);
                     this.carregarMembros(this.clubeSelecionado.id);
@@ -253,7 +255,7 @@ export const ClubsComponent = {
         },
         async carregarMeusClubes() {
             try {
-                const res = await fetch(`/api/perfil/${this.usuario.id}`);
+                const res = await fetch(`${API_BASE_URL}/api/perfil/${this.usuario.id}`);
                 if (res.ok) {
                     const perfil = await res.json();
                     this.meusClubesIds = perfil.clubes.map(c => c.id);
@@ -267,17 +269,17 @@ export const ClubsComponent = {
         isSolicitacaoPendente(clubeId) {
             return this.minhasSolicitacoesIds.includes(clubeId);
         },
-        async carregarClubes() { try { const res = await fetch('/api/clubes'); this.clubes = await res.json(); } catch (e) { console.error(e); } },
+        async carregarClubes() { try { const res = await fetch(`${API_BASE_URL}/api/clubes`); this.clubes = await res.json(); } catch (e) { console.error(e); } },
         async criarClube() {
             if(!this.novoClube.foto) this.novoClube.foto = `https://ui-avatars.com/api/?name=${this.novoClube.nome}&background=random`;
             try {
-                const res = await fetch('/api/clubes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...this.novoClube, donoId: this.usuario.id }) });
+                const res = await fetch(`${API_BASE_URL}/api/clubes`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...this.novoClube, donoId: this.usuario.id }) });
                 if (res.ok) { alert("Clube criado!"); this.exibindoFormClube = false; this.novoClube = { nome: '', descricao: '', foto: '', publico: true }; this.carregarClubes(); }
             } catch (e) { alert("Erro de conexão."); }
         },
         async entrarClube(clube) {
             try {
-                const res = await fetch(`/api/clubes/${clube.id}/entrar?usuarioId=${this.usuario.id}`, { method: 'POST' });
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${clube.id}/entrar?usuarioId=${this.usuario.id}`, { method: 'POST' });
                 const msg = await res.text();
                 
                 if (res.status === 200) {
@@ -302,90 +304,64 @@ export const ClubsComponent = {
         },
         async carregarMembros(clubeId) {
             try {
-                const res = await fetch(`/api/clubes/${clubeId}/membros`);
-                if (res.ok) {
-                    this.membrosClube = await res.json();
-                }
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${clubeId}/membros`);
+                this.membrosClube = await res.json();
             } catch (e) { console.error(e); }
         },
         async carregarSolicitacoes(clubeId) {
             try {
-                const res = await fetch(`/api/clubes/${clubeId}/solicitacoes?usuarioId=${this.usuario.id}`);
-                if (res.ok) {
-                    this.solicitacoes = await res.json();
-                }
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${clubeId}/solicitacoes?usuarioId=${this.usuario.id}`);
+                this.solicitacoes = await res.json();
             } catch (e) { console.error(e); }
         },
         async responderSolicitacao(solicitacaoId, aceitar) {
-            console.log(`Tentando responder solicitação ${solicitacaoId} com aceitar=${aceitar}`);
             try {
-                const res = await fetch(`/api/solicitacoes/${solicitacaoId}/responder?aceitar=${aceitar}&usuarioId=${this.usuario.id}`, { method: 'POST' });
-                console.log(`Resposta do servidor: ${res.status}`);
-                
+                const res = await fetch(`${API_BASE_URL}/api/solicitacoes/${solicitacaoId}/responder?aceitar=${aceitar}&usuarioId=${this.usuario.id}`, { method: 'POST' });
                 if (res.ok) {
-                    alert(aceitar ? "Solicitação aceita!" : "Solicitação rejeitada.");
-                    await this.carregarSolicitacoes(this.clubeSelecionado.id);
-                    if (aceitar) await this.carregarMembros(this.clubeSelecionado.id);
+                    this.carregarSolicitacoes(this.clubeSelecionado.id);
+                    this.carregarMembros(this.clubeSelecionado.id);
                 } else {
-                    const msg = await res.text();
-                    console.error("Erro do servidor:", msg);
-                    alert("Erro: " + msg);
+                    alert("Erro ao responder solicitação.");
                 }
-            } catch (e) { 
-                console.error("Erro de conexão:", e);
-                alert("Erro de conexão: " + e); 
-            }
+            } catch (e) { alert("Erro de conexão."); }
         },
         async excluirClube(clube) {
-            if (!confirm(`Tem certeza que deseja excluir o clube "${clube.nome}"? Esta ação não pode ser desfeita.`)) return;
+            if (!confirm("Tem certeza que deseja excluir este clube?")) return;
             try {
-                const res = await fetch(`/api/clubes/${clube.id}?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${clube.id}?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
                 if (res.ok) {
-                    alert("Clube excluído com sucesso.");
+                    alert("Clube excluído.");
                     this.clubeSelecionado = null;
                     this.carregarClubes();
-                    this.carregarMeusClubes();
                 } else {
                     alert("Erro ao excluir clube.");
                 }
             } catch (e) { alert("Erro de conexão."); }
         },
         async sairDoClube(clube) {
-            if (!confirm(`Tem certeza que deseja sair do clube "${clube.nome}"?`)) return;
+            if (!confirm("Tem certeza que deseja sair do clube?")) return;
             try {
-                const res = await fetch(`/api/clubes/${clube.id}/sair?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${clube.id}/sair?usuarioId=${this.usuario.id}`, { method: 'DELETE' });
                 if (res.ok) {
                     alert("Você saiu do clube.");
                     this.clubeSelecionado = null;
                     this.carregarClubes();
                     this.carregarMeusClubes();
                 } else {
-                    const msg = await res.text();
-                    alert("Erro: " + msg);
+                    alert("Erro ao sair do clube.");
                 }
             } catch (e) { alert("Erro de conexão."); }
         },
         async alterarCargo(membro, novoCargo) {
-            let msg = `Deseja alterar o cargo de ${membro.nome} para ${novoCargo}?`;
-            if (novoCargo === 'DONO') {
-                msg = `ATENÇÃO: Ao passar a posse para ${membro.nome}, você deixará de ser o dono e se tornará um Moderador. Tem certeza?`;
-            }
-            if (!confirm(msg)) return;
-
+            if (!confirm(`Alterar cargo de ${membro.nome} para ${novoCargo}?`)) return;
             try {
-                const res = await fetch(`/api/clubes/${this.clubeSelecionado.id}/membros/${membro.id}/cargo?cargo=${novoCargo}&usuarioLogadoId=${this.usuario.id}`, { method: 'PUT' });
+                const res = await fetch(`${API_BASE_URL}/api/clubes/${this.clubeSelecionado.id}/membros/${membro.id}/cargo?usuarioId=${this.usuario.id}&novoCargo=${novoCargo}`, { method: 'PUT' });
                 if (res.ok) {
-                    alert("Cargo atualizado com sucesso!");
+                    alert("Cargo alterado!");
                     this.carregarMembros(this.clubeSelecionado.id);
-                    // Se transferiu posse, recarrega detalhes para atualizar permissões
-                    if (novoCargo === 'DONO') {
-                        this.carregarClubes(); // Atualiza lista geral
-                        // Atualiza objeto local para refletir mudança imediata na UI
-                        this.clubeSelecionado.donoId = membro.id; 
-                    }
                 } else {
-                    const erro = await res.text();
-                    alert("Erro: " + erro);
+                    const msg = await res.text();
+                    alert("Erro: " + msg);
                 }
             } catch (e) { alert("Erro de conexão."); }
         }

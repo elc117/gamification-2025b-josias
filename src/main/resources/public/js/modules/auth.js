@@ -1,3 +1,5 @@
+import API_BASE_URL from '../config.js';
+
 export const AuthComponent = {
     template: `
     <div class="card login-card shadow">
@@ -36,7 +38,7 @@ export const AuthComponent = {
         alternarTela() { this.exibindoCadastro = !this.exibindoCadastro; this.loginErro = ''; },
         async fazerLogin() {
             try {
-                const res = await fetch('/api/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.loginForm) });
+                const res = await fetch(`${API_BASE_URL}/api/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.loginForm) });
                 if (res.ok) {
                     const usuario = await res.json();
                     this.$emit('on-login', usuario); // Avisa o pai (app.js)
@@ -45,7 +47,7 @@ export const AuthComponent = {
         },
         async fazerCadastro() {
             try {
-                const res = await fetch('/api/usuarios', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.cadastroForm) });
+                const res = await fetch(`${API_BASE_URL}/api/usuarios`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(this.cadastroForm) });
                 if (res.ok) {
                     this.cadastroSucesso = true; this.exibindoCadastro = false;
                     this.loginForm.nome = this.cadastroForm.nome; this.cadastroForm.nome = ''; this.cadastroForm.senha = '';

@@ -1,3 +1,5 @@
+import API_BASE_URL from '../config.js';
+
 export const ReadingComponent = {
     props: ['usuario'],
     template: `
@@ -176,13 +178,13 @@ export const ReadingComponent = {
         this.carregarRanking(); 
     },
     methods: {
-        async carregarEstante() { try { const res = await fetch(`/api/estante/${this.usuario.id}`); this.estante = await res.json(); } catch (e) { console.error(e); } },
+        async carregarEstante() { try { const res = await fetch(`${API_BASE_URL}/api/estante/${this.usuario.id}`); this.estante = await res.json(); } catch (e) { console.error(e); } },
         
         async carregarMeusClubes() {
             // Usa o endpoint de perfil para pegar os clubes do usuário logado de forma rápida
             // Idealmente teria um endpoint dedicado /api/meus-clubes, mas vamos reutilizar
             try {
-                const res = await fetch(`/api/perfil/${this.usuario.id}`);
+                const res = await fetch(`${API_BASE_URL}/api/perfil/${this.usuario.id}`);
                 if (res.ok) {
                     const perfil = await res.json();
                     this.meusClubes = perfil.clubes || [];
@@ -192,7 +194,7 @@ export const ReadingComponent = {
 
         async carregarRanking() { 
             try { 
-                let url = '/api/ranking';
+                let url = `${API_BASE_URL}/api/ranking`;
                 const params = new URLSearchParams();
                 if (this.filtroRanking) params.append('clubeId', this.filtroRanking);
                 if (this.filtroPeriodo) params.append('periodo', this.filtroPeriodo);
@@ -207,11 +209,11 @@ export const ReadingComponent = {
         
         async buscarLivros() {
             if (this.buscaLivro.length < 3) { this.sugestoes = []; return; }
-            try { const res = await fetch(`/api/livros?q=${this.buscaLivro}`); this.sugestoes = await res.json(); } catch (e) { console.error(e); }
+            try { const res = await fetch(`${API_BASE_URL}/api/livros?q=${this.buscaLivro}`); this.sugestoes = await res.json(); } catch (e) { console.error(e); }
         },
         async adicionarAEstante(livro) {
             try {
-                const res = await fetch('/api/estante', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: this.usuario.id, livroId: livro.id, titulo: livro.titulo, autor: livro.autor, paginasTotal: livro.paginas }) });
+                const res = await fetch(`${API_BASE_URL}/api/estante`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ usuarioId: this.usuario.id, livroId: livro.id, titulo: livro.titulo, autor: livro.autor, paginasTotal: livro.paginas }) });
                 if (res.ok) { this.mostrarFormNovo = false; this.buscaLivro = ''; this.sugestoes = []; this.carregarEstante(); }
             } catch (e) { alert("Erro ao adicionar livro."); }
         },
@@ -219,7 +221,7 @@ export const ReadingComponent = {
         async salvarProgresso() {
             if (this.paginasLidasInput <= 0) return;
             try {
-                const res = await fetch(`/api/estante/${this.itemSelecionado.id}/progresso?paginas=${this.paginasLidasInput}`, { method: 'PUT' });
+                const res = await fetch(`${API_BASE_URL}/api/estante/${this.itemSelecionado.id}/progresso?paginas=${this.paginasLidasInput}`, { method: 'PUT' });
                 if (res.ok) { 
                     this.modalProgressoAberto = false; 
                     this.carregarEstante(); 
@@ -234,7 +236,7 @@ export const ReadingComponent = {
         abrirModalEdicao(item) { this.itemSelecionado = item; this.paginasEdicaoInput = item.paginasLidas; this.modalEdicaoAberto = true; },
         async salvarEdicao() {
             try {
-                const res = await fetch(`/api/estante/${this.itemSelecionado.id}/editar?paginas=${this.paginasEdicaoInput}`, { method: 'PUT' });
+                const res = await fetch(`${API_BASE_URL}/api/estante/${this.itemSelecionado.id}/editar?paginas=${this.paginasEdicaoInput}`, { method: 'PUT' });
                 if (res.ok) { 
                     this.modalEdicaoAberto = false; 
                     this.carregarEstante(); 
@@ -249,7 +251,7 @@ export const ReadingComponent = {
         async alterarStatus(item, novoStatus) {
             if (!confirm(`Deseja marcar como ${novoStatus}?`)) return;
             try {
-                const res = await fetch(`/api/estante/${item.id}/status?status=${novoStatus}`, { method: 'PUT' });
+                const res = await fetch(`${API_BASE_URL}/api/estante/${item.id}/status?status=${novoStatus}`, { method: 'PUT' });
                 if (res.ok) { 
                     this.carregarEstante(); 
                     if (novoStatus === 'CONCLUIDO') {
@@ -262,7 +264,7 @@ export const ReadingComponent = {
         async excluirItem(item) {
             if (!confirm("Tem certeza? Você perderá os pontos ganhos com este livro!")) return;
             try {
-                const res = await fetch(`/api/estante/${item.id}`, { method: 'DELETE' });
+                const res = await fetch(`${API_BASE_URL}/api/estante/${item.id}`, { method: 'DELETE' });
                 if (res.ok) { 
                     this.carregarEstante(); 
                     this.$emit('atualizar-usuario');
