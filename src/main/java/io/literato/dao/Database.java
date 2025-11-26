@@ -181,15 +181,15 @@ public class Database {
 
             System.out.println("Importando livros do CSV...");
             
-            java.io.File csvFile = new java.io.File("books.csv");
-            if (!csvFile.exists()) {
-                System.out.println("Arquivo books.csv não encontrado. Pulei a importação.");
+            java.io.InputStream is = Database.class.getClassLoader().getResourceAsStream("books.csv");
+            if (is == null) {
+                System.out.println("Arquivo books.csv não encontrado no classpath. Pulei a importação.");
                 return;
             }
 
             String sql = "INSERT INTO livros (id, titulo, autor, nota_media, isbn, paginas) VALUES (?, ?, ?, ?, ?, ?)";
             try (java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
-                 java.io.BufferedReader br = new java.io.BufferedReader(new java.io.FileReader(csvFile))) {
+                 java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
                 
                 String line;
                 br.readLine(); // Pula cabeçalho

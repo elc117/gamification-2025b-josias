@@ -10,8 +10,6 @@ FROM eclipse-temurin:17-jre
 WORKDIR /app
 # Copia o JAR gerado no estágio anterior
 COPY --from=build /app/target/literato-api-1.0-SNAPSHOT.jar app.jar
-# Copia o arquivo CSV de livros para a raiz da execução
-COPY --from=build /app/books.csv .
 
 # Define a porta (opcional, mas boa prática)
 ENV PORT=7070
