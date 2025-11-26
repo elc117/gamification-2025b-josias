@@ -1,0 +1,32 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden; /* Evita scroll na janela principal, forçando scroll no #app */
+    background-color: #f8f9fa;
+}
+
+#app {
+    height: 100%;
+    overflow-y: auto; /* Scroll acontece aqui dentro */
+    padding-top: 20px;
+    padding-bottom: 50px; /* Espaço extra no final */
+}
+
+/* Melhoria visual na barra de rolagem */
+#app::-webkit-scrollbar {
+    width: 8px;
+}
+#app::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+#app::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 4px;
+}
+#app::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
