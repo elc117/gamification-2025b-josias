@@ -41,9 +41,18 @@ public class Main {
             config.registerPlugin(new CorsPlugin(cors -> {
                 cors.addRule(rule -> { rule.anyHost(); });
             }));
-        }).start(7070); 
+        });
 
-        System.out.println("Servidor Literato V2 rodando na porta 7070 🚀");
+        // AJUSTE PARA O RENDER:
+        // Tenta pegar a porta do ambiente (Render), se não tiver, usa 7070 (Local)
+        int port = 7070;
+        if (System.getenv("PORT") != null) {
+            port = Integer.parseInt(System.getenv("PORT"));
+        }
+        
+        app.start(port); 
+
+        System.out.println("Servidor Literato V2 rodando na porta " + port + " 🚀");
 
         // 4. Rotas da API
         
