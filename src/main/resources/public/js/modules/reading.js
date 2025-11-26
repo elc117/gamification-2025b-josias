@@ -228,6 +228,10 @@ export const ReadingComponent = {
                     this.carregarEstante(); 
                     this.$emit('atualizar-usuario'); // Atualiza pontos no header
                     this.carregarRanking(); // Atualiza ranking
+                } else if (res.status === 404) {
+                    alert("Este livro não está mais na sua estante (talvez o banco tenha sido resetado).");
+                    this.modalProgressoAberto = false;
+                    this.carregarEstante();
                 } else {
                     const msg = await res.text();
                     alert("Erro: " + msg);

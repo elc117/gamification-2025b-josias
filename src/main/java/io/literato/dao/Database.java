@@ -181,7 +181,11 @@ public class Database {
 
             System.out.println("Importando livros do CSV...");
             
-            java.io.InputStream is = Database.class.getClassLoader().getResourceAsStream("books.csv");
+            java.io.InputStream is = Database.class.getResourceAsStream("/books.csv");
+            if (is == null) {
+                is = Database.class.getClassLoader().getResourceAsStream("books.csv");
+            }
+            
             if (is == null) {
                 System.out.println("Arquivo books.csv não encontrado no classpath. Pulei a importação.");
                 return;

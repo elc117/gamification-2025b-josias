@@ -40,7 +40,11 @@ public class EstanteController {
             service.registrarProgresso(id, paginas);
             ctx.status(200).result("Progresso atualizado!");
         } catch (IllegalArgumentException e) {
-            ctx.status(400).result(e.getMessage());
+            if (e.getMessage().contains("Item não encontrado")) {
+                ctx.status(404).result(e.getMessage());
+            } else {
+                ctx.status(400).result(e.getMessage());
+            }
         } catch (Exception e) {
             ctx.status(500).result("Erro interno: " + e.getMessage());
         }
