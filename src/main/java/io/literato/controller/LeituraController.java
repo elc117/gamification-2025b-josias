@@ -63,7 +63,11 @@ public class LeituraController {
             service.criarUsuario(novoUsuario);
             ctx.status(201).result("Usuário criado com sucesso");
         } catch (SQLException e) {
-            ctx.status(500).result("Erro ao criar usuário: " + e.getMessage());
+            if (e.getMessage().contains("UNIQUE constraint failed") || e.getMessage().contains("users.username")) {
+                ctx.status(409).result("Este nome de usuário já está em uso.");
+            } else {
+                ctx.status(500).result("Erro ao criar usuário: " + e.getMessage());
+            }
         }
     }
 
