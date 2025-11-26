@@ -14,7 +14,12 @@ const app = createApp({
         async atualizarDadosUsuario() {
             try {
                 const res = await fetch(`${API_BASE_URL}/api/usuarios/${this.usuarioLogado.id}`);
-                if (res.ok) this.usuarioLogado = await res.json();
+                if (res.ok) {
+                    this.usuarioLogado = await res.json();
+                } else if (res.status === 404) {
+                    alert("Sessão expirada. Faça login novamente.");
+                    this.logout();
+                }
             } catch (e) { console.error(e); }
         },
         abrirPerfil(id) {

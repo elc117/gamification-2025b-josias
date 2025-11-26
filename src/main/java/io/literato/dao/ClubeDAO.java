@@ -20,11 +20,13 @@ public class ClubeDAO {
             stmt.setString(4, clube.getCapa());
             stmt.setInt(5, clube.getDonoId());
             stmt.setBoolean(6, clube.isPublico());
+            System.out.println("Criando clube: " + clube.getNome() + " Dono ID: " + clube.getDonoId());
             stmt.executeUpdate();
 
             try (ResultSet generatedKeys = stmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     int novoClubeId = generatedKeys.getInt(1);
+                    System.out.println("Clube criado com ID: " + novoClubeId + ". Adicionando dono...");
                     entrar(clube.getDonoId(), novoClubeId, "DONO");
                 }
             }

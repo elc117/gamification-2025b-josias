@@ -2,6 +2,7 @@ import API_BASE_URL from '../config.js';
 
 export const ReadingComponent = {
     props: ['usuario'],
+    emits: ['atualizarUsuario', 'verPerfil'],
     template: `
     <div class="row">
         <!-- Coluna da Esquerda: Meus Livros (Estante) -->
