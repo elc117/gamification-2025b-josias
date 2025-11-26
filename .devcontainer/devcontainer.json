@@ -1,0 +1,17 @@
+{
+  "name": "Literato API (Java 17 & Maven)",
+
+  "build": {
+    "dockerfile": "../Dockerfile"
+  },
+
+  "forwardPorts": [7070],
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "vscjava.vscode-java-pack"
+      ]
+    }
+  }
+}

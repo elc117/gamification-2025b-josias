@@ -1,0 +1,18 @@
+# Arquivos compilados do Maven
+target/
+
+# Banco de dados local (não deve subir, pois muda a cada teste)
+*.db
+
+# Arquivos de IDE (VS Code, IntelliJ, Eclipse)
+.vscode/
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.DS_Store
+
+# Logs e arquivos temporários
+*.log
+.DS_Store

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Literato - Gamificação</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <style>
+        [v-cloak] { display: none !important; }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; }
+        .modal-content-custom { background: white; padding: 20px; border-radius: 10px; width: 90%; max-width: 500px; }
+    </style>
+</head>
+<body>
+
+<div id="app" v-cloak :class="{'container': true, 'dashboard-container': usuarioLogado}">
+    
+    <!-- Componente de Login/Cadastro -->
+    <auth-component v-if="!usuarioLogado" @on-login="setUsuario"></auth-component>
+
+    <!-- Dashboard -->
+    <div v-else>
+        <!-- Modal de Perfil -->
+        <profile-modal v-if="exibindoEdicao" :usuario="usuarioLogado" @close="exibindoEdicao = false" @update="atualizarDadosUsuario"></profile-modal>
+
+        <!-- Cabeçalho -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="d-flex align-items-center cursor-pointer" @click="abrirPerfil(usuarioLogado.id)" style="cursor: pointer;">
+                <img :src="usuarioLogado.foto" class="rounded-circle me-3" width="60" height="60" style="object-fit: cover; border: 2px solid #0d6efd;">
+                <div>
+                    <h1 class="h3 fw-bold text-primary mb-0">
+                        {{ usuarioLogado.nome }}
+                        <button @click.stop="exibindoEdicao = true" class="btn btn-sm btn-link text-decoration-none" title="Editar Perfil">✏️</button>
+                    </h1>
+                    <p class="text-muted mb-0 small">{{ usuarioLogado.bio || 'Sem bio definida' }}</p>
+                    <span class="badge bg-warning text-dark mt-1">⚡ Streak: {{ usuarioLogado.streak }} dias</span>
+                    <span class="badge bg-info text-dark mt-1 ms-1">⭐ {{ usuarioLogado.pontos }} pts</span>
+                </div>
+            </div>
+            <button @click="logout" class="btn btn-outline-danger btn-sm">Sair</button>
+        </div>
+
+        <!-- Navegação -->
+        <ul class="nav nav-tabs mb-4">
+            <li class="nav-item"><a class="nav-link" :class="{active: abaAtual === 'home'}" href="#" @click.prevent="abaAtual = 'home'">🏠 Início</a></li>
+            <li class="nav-item"><a class="nav-link" :class="{active: abaAtual === 'clubes'}" href="#" @click.prevent="abaAtual = 'clubes'">👥 Clubes</a></li>
+            <li class="nav-item"><a class="nav-link" :class="{active: abaAtual === 'perfil' && perfilIdSelecionado === usuarioLogado.id}" href="#" @click.prevent="abrirPerfil(usuarioLogado.id)">👤 Meu Perfil</a></li>
+        </ul>
+
+        <!-- Conteúdo das Abas (Componentes) -->
+        <reading-component v-if="abaAtual === 'home'" :usuario="usuarioLogado" @atualizar-usuario="atualizarDadosUsuario" @ver-perfil="abrirPerfil"></reading-component>
+        <clubs-component v-if="abaAtual === 'clubes'" :usuario="usuarioLogado" @ver-perfil="abrirPerfil"></clubs-component>
+        <public-profile-component v-if="abaAtual === 'perfil'" :usuario-id="perfilIdSelecionado" :usuario-logado="usuarioLogado" @voltar="abaAtual = 'home'"></public-profile-component>
+    </div>
+</div>
+
+<script type="module" src="js/app.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
